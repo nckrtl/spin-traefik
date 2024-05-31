@@ -1,0 +1,50 @@
+---
+###########################################
+# Basic Server Configuration
+###########################################
+server_timezone: 'Etc/UTC'
+server_contact: nick@platform11.nl # 👈 Change this
+
+# SSH
+ssh_port: '22'
+
+## Email Notifications
+postfix_hostname: '{{ inventory_hostname }}' # ✅ Set automatically
+
+## Set variables below to enable external SMTP relay
+# postfix_relayhost: "smtp.example.com"
+# postfix_relayhost_port: "587"
+# postfix_relayhost_username: "myusername"
+# postfix_relayhost_password: "mysupersecretpassword"
+
+##############################################################
+# Deploy User
+##############################################################
+docker_user:
+  username: deploy
+  uid: 9999
+  group: deploy
+  secondary_groups: 'docker'
+  gid: 9999
+  ## Uncomment to set authorized SSH keys for the docker user.
+  authorized_ssh_keys:
+    - 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDd2ACptuooq1Fa1IbSlVz7YddyK8Gx8HUFEDZHZiFiX'
+
+##############################################################
+# Users
+##############################################################
+
+### Use the template below to set users and their authorized keys
+## Passwords must be set with an encrypted hash. To do this, see the Ansible FAQ.
+## Your best bet is probably using the `mkpasswd` on a Linux machine.
+## https://docs.ansible.com/ansible/latest/reference_appendices/faq.html#how-do-i-generate-encrypted-passwords-for-the-user-module
+
+users:
+  - username: nckrtl
+    name: nckrtl # 👈 Change this
+    state: present
+    groups: ['adm', 'sudo']
+    password: '$y$j9T$xcP7NrmOZk3PWTuaoEppA0$ZIxyiYjOz27xF04tLE9Pyvt4KNgpXDSBR5lnha4uKlC' # 👈 Change this
+    shell: '/bin/bash'
+    authorized_keys:
+      - public_key: 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDd2ACptuooq1Fa1IbSlVz7YddyK8Gx8HUFEDZHZiFiX'

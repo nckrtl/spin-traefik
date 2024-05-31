@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  traefik:
+    ports:
+      - target: 80
+        published: 80
+        protocol: tcp
+        mode: host
+      - target: 443
+        published: 443
+        protocol: tcp
+        mode: host
+    networks:
+      - web-public
+    deploy:
+      update_config:
+        parallelism: 1
+        delay: 5s
+        order: stop-first
+      placement:
+        constraints:
+          - node.role==manager
+    volumes:
+      # Mount the Docker socket as read-only so Traefik can listen to events
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - certificates:/certificates
+    configs:
+      - source: traefik
+        target: /etc/traefik/traefik.yml
+    healthcheck:
+      test: ['CMD', 'traefik', 'healthcheck', '--ping']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+configs:
+  traefik:
+    name: 'traefik-${SPIN_TRAEFIK_YML_CONFIG_MD5_HASH}.yml'
+    file: ./.infrastructure/conf/traefik/prod/traefik.yml
+
+volumes:
+  certificates:
+
+networks:
+  web-public:
+    external: true
